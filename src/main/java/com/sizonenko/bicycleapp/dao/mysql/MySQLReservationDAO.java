@@ -16,7 +16,7 @@ import com.mysql.jdbc.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MySQLReservationDAO implements AbstractReservationDAO<Integer>, MySQLDAO {
+public class MySQLReservationDAO implements AbstractReservationDAO<Long>, MySQLDAO {
 
     private final String SQL_INSERT_RESERVATION = "INSERT INTO reservation (member_id, bicycle_id, start_time, end_time, amount) VALUES (?,?,?,?,?)";
     private final String SQL_CHECK_RESERVATION = "SELECT * FROM reservation WHERE bicycle_id = ? AND NOT((start_time > ? AND start_time > ?) OR (end_time < ? AND end_time < ?))";
@@ -145,6 +145,7 @@ public class MySQLReservationDAO implements AbstractReservationDAO<Integer>, MyS
                 bicycle.setColor(resultSet.getString("b.color"));
                 bicycle.setSize(resultSet.getString("b.size"));
 
+                reserve.setReservationId(resultSet.getLong("r.request_id"));
                 reserve.setStartTime(resultSet.getTimestamp("r.start_time"));
                 reserve.setEndTime(resultSet.getTimestamp("r.end_time"));
                 reserve.setAmount(resultSet.getBigDecimal("r.amount"));
@@ -163,12 +164,51 @@ public class MySQLReservationDAO implements AbstractReservationDAO<Integer>, MyS
     }
 
     @Override
-    public Reservation findEntityById(Integer id) {
-        return null;
+    public Reservation findEntityById(Long id) throws DAOException {
+        Reservation reservation = new Reservation();;
+        Connection cn = null;
+        Statement st = null;
+        try{
+            cn = (Connection) ConnectionPool.getInstance().getConnection();
+            st = (Statement) cn.createStatement();
+            ResultSet resultSet = st.executeQuery(
+                    "SELECT m.*, b.*, r.*" +
+                            "FROM reservation AS r " +
+                            "INNER JOIN member AS m ON r.member_id = m.member_id " +
+                            "INNER JOIN bicycle AS b ON r.bicycle_id = b.bicycle_id " +
+                            "WHERE r.request_id = " + id);
+            while(resultSet.next()){
+                Bicycle bicycle = new Bicycle();
+                Member member = new Member();
+
+                member.setMemberId(resultSet.getLong("m.member_id"));
+                member.setFirstname(resultSet.getString("m.first_name"));
+                member.setLastname(resultSet.getString("m.last_name"));
+                member.setPhone(resultSet.getString("m.phone"));
+
+                bicycle.setBicycleId(resultSet.getLong("b.bicycle_id"));
+                bicycle.setMaker(resultSet.getString("b.maker"));
+                bicycle.setModel(resultSet.getString("b.model"));
+                bicycle.setColor(resultSet.getString("b.color"));
+                bicycle.setSize(resultSet.getString("b.size"));
+
+                reservation.setStartTime(resultSet.getTimestamp("r.start_time"));
+                reservation.setEndTime(resultSet.getTimestamp("r.end_time"));
+                reservation.setAmount(resultSet.getBigDecimal("r.amount"));
+                reservation.setBicycle(bicycle);
+                reservation.setMember(member);
+            }
+        } catch (SQLException e) {
+            throw new DAOException(e);
+        } finally{
+            close(st);
+            close(cn);
+        }
+        return reservation;
     }
 
     @Override
-    public boolean delete(Integer id) {
+    public boolean delete(Long id) {
         return false;
     }
 

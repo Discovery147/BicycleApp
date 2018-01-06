@@ -3,9 +3,12 @@ package com.sizonenko.bicycleapp.pool;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -65,11 +68,13 @@ public class ConnectionPool {
     }
 
     public Connection getConnection() {
-        return queue.poll();
+        Supplier<Connection> supplier = queue::poll;
+        return supplier.get();
     }
 
     public void returnConnection(Connection connection) {
-        if (connection != null) {
+        Predicate<Connection> isNotNull = Objects::nonNull;
+        if (isNotNull.test(connection)) {
             queue.offer(connection);
         }else{
             LOGGER.log(Level.DEBUG, "RETURNED CONNECTION IS NULL");

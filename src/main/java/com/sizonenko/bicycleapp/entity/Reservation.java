@@ -93,13 +93,6 @@ public class Reservation extends Entity {
 
     @Override
     public String toString() {
-        return "Reservation{" +
-                "reservationId=" + reservationId +
-                ", member=" + member +
-                ", bicycle=" + bicycle +
-                ", startTime=" + startTime +
-                ", endTime=" + endTime +
-                ", amount=" + amount +
-                '}';
+        return new com.google.gson.Gson().toJson(this);
     }
 }

@@ -73,4 +73,12 @@ public class ReservationReceiver {
             throw new ReceiverException(e);
         }
     }
+
+    public Reservation findReservationById(Long id) throws ReceiverException {
+        try {
+            return (Reservation) dao.findEntityById(id);
+        } catch (DAOException e) {
+            throw new ReceiverException(e);
+        }
+    }
 }

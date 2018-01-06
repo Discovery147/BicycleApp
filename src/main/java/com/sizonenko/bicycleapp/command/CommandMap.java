@@ -17,6 +17,7 @@ public class CommandMap {
         this.put(CommandType.CONFIRM, new ConfirmCommand());
         this.put(CommandType.FILL_CASHIER, new FillCashierCommand());
         this.put(CommandType.FIND_NOT_FINISHED_TRANSACTION, new FindNotFinishedTransactionCommand());
+        this.put(CommandType.FIND_RESERVATION, new FindReservationCommand());
         this.put(CommandType.COMPLETE_TRANSACTION, new CompleteTransactionCommand());
     }};
     private final static CommandMap instance = new CommandMap();

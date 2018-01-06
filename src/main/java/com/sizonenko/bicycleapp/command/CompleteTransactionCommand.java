@@ -12,8 +12,8 @@ import java.math.BigDecimal;
 
 public class CompleteTransactionCommand implements Command {
 
-    private final String ID = "transactionId";
-    private final String AMOUNT = "amount";
+    private static final String ID = "transactionId";
+    private static final String AMOUNT = "amount";
     private TransactionReceiver receiver = new TransactionReceiver();
 
     @Override
